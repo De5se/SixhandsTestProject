@@ -20,7 +20,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        RoomOptions roomOptions = new RoomOptions();
+        RoomOptions roomOptions = new RoomOptions(){BroadcastPropsChangeToAll = true};
         roomOptions.MaxPlayers = 10;
         PhotonNetwork.CreateRoom(roomNameField.text, roomOptions);
     }

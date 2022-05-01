@@ -11,14 +11,8 @@ public class SkinPanel : MonoBehaviour
     
     public void SetButtons(SkinController skinController)
     {
-        changeShirt.onClick.AddListener(()=>{
-            skinController.ChangeShirt(1);
-        });
-        changeBoots.onClick.AddListener(()=>{
-            skinController.ChangeBoots(1);
-        });
-        changePants.onClick.AddListener(()=>{
-            skinController.ChangeTrousers(1);
-        });
+        changeShirt.onClick.AddListener(skinController.ChangeShirt);
+        changeBoots.onClick.AddListener(skinController.ChangeBoots);
+        changePants.onClick.AddListener(skinController.ChangeTrousers);
     }
 }

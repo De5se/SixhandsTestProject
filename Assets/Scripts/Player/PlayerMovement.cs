@@ -11,10 +11,19 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float walkingSpeed;
     [SerializeField] private float runningSpeed;
     [SerializeField] private float rotationSpeed;
-
+    
+    [SerializeField] private float gravity = -9.81f;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundDistance = 0.4f;
+    [SerializeField] private LayerMask groundMask;
+    
+    private bool _isGrounded;
     private bool _isRunning;
-    private static readonly int IsWalking = Animator.StringToHash("isWalking");
-    private static readonly int IsRunning = Animator.StringToHash("isRunning");
+
+    private Vector3 _velocity;
+
+    private readonly string _isWalkingString = "isWalking";
+    private readonly string _isRunningString = "isRunning";
     
     private Transform _playerMesh;
     private void Start()
@@ -36,25 +45,35 @@ public class PlayerMovement : MonoBehaviour
     {
         Motion();
     }
-    
+
     private void Motion()
     {
+        //y motion
+        _isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+        if (_isGrounded && _velocity.y < 0)
+        {
+            _velocity.y = -2;
+        }
+        _velocity.y += gravity * Time.deltaTime;
+        _controller.Move(_velocity * Time.deltaTime);
+        
+        //x,z motion
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
         Vector3 move = transform.right * x + transform.forward * z;
-
+        
         bool isMotion = (move != Vector3.zero);
-        animator.SetBool(IsWalking, isMotion);
+        animator.SetBool(_isWalkingString, isMotion);
         
         if (!isMotion)
         {
             return;
         }
+
         float speed = walkingSpeed;
-        
         CheckEffects();
         if (_isRunning)
-        { 
+        {
             speed = runningSpeed;
         }
 
@@ -62,10 +81,12 @@ public class PlayerMovement : MonoBehaviour
         Rotate(move);
     }
 
+    
+    
     private void CheckEffects()
     {
         _isRunning = (Input.GetAxis("Running") > 0);
-        animator.SetBool(IsRunning, (_isRunning && animator.GetBool(IsWalking)));
+        animator.SetBool(_isRunningString, (_isRunning && animator.GetBool(_isWalkingString)));
     }
     
     private void Rotate(Vector3 deltaMotion)
@@ -74,6 +95,5 @@ public class PlayerMovement : MonoBehaviour
         Quaternion toRotation = Quaternion.LookRotation(relativePos);
 
         _playerMesh.rotation = Quaternion.Slerp(_playerMesh.rotation, toRotation, rotationSpeed * Time.deltaTime);
-        //transform.rotation = Quaternion.Slerp(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
     }
 }
